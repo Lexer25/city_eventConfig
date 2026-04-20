@@ -14,6 +14,9 @@
         .btn { padding: 8px 15px; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }
         .btn-save { background: #4CAF50; color: white; }
         .btn-cancel { background: #ccc; color: black; margin-left: 10px; }
+        .alert { padding: 12px 20px; margin-bottom: 20px; border-radius: 4px; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
     </style>
     <script>
         function updateColorPreview() {
@@ -25,6 +28,16 @@
     </script>
 </head>
 <body>
+    <?php if (!empty($validation_errors)): ?>
+    <div class="alert alert-danger">
+        <strong>Ошибки валидации:</strong>
+        <ul>
+            <?php foreach ($validation_errors as $field => $error): ?>
+            <li><?php echo HTML::chars($error); ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <?php endif; ?>
     <h1>Редактирование типа события #<?php echo $eventtype['ID_EVENTTYPE']; ?></h1>
     
     <form action="<?php echo URL::site('eventConfig/save'); ?>" method="post">

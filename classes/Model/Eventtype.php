@@ -34,7 +34,7 @@ class Model_Eventtype extends Model
     public function get_one($id)
     {
         $id = (int) $id;
-        if ($id <= 0) {
+        if ($id < 0) {
             return FALSE;
         }
         $query = DB::select()
