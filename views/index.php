@@ -1,483 +1,54 @@
-<?php if (!empty($flash_success)): ?>
-<div class="alert alert-success">
-    <?php echo HTML::chars($flash_success); ?>
-</div>
-<?php endif; ?>
-<?php if (!empty($flash_error)): ?>
-<div class="alert alert-danger">
-    <?php echo HTML::chars($flash_error); ?>
-</div>
-<?php endif; ?>
+<?php
+echo '<div class="alert alert-info alert-dismissible fade in" role="alert" style="margin-bottom: 20px;">';
+echo '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
+echo '<strong>Версия модуля:</strong> ' . EVENTCONFIG_VERSION;
+echo '</div>';
 
-<h1>Типы событий</h1>
+$tab = isset($_GET['tab']) ? $_GET['tab'] : 'tab1';
+?>
 
-<!-- Навигационные табы -->
-<ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active">
-        <a href="#tab-list" aria-controls="tab-list" role="tab" data-toggle="tab">Текущий список</a>
+<!-- Закладки Bootstrap 3 -->
+<ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
+    <li role="presentation" class="<?php echo $tab == 'tab1' ? 'active' : ''; ?>">
+        <a href="?tab=tab1">
+            <span class="glyphicon glyphicon-list"></span> Список событий
+        </a>
     </li>
-    <li role="presentation">
-        <a href="#tab-add" aria-controls="tab-add" role="tab" data-toggle="tab">Добавить событие</a>
-    </li>
-    <li role="presentation">
-        <a href="#tab-history" aria-controls="tab-history" role="tab" data-toggle="tab">История</a>
+    <li role="presentation" class="<?php echo $tab == 'tab2' ? 'active' : ''; ?>">
+        <a href="?tab=tab2">
+            <span class="glyphicon glyphicon-plus"></span> Добавить событие
+        </a>
     </li>
 </ul>
 
-<!-- Содержимое табов -->
-<div class="tab-content" style="padding-top: 20px;">
-    <!-- Закладка 1: Текущий список -->
-    <div role="tabpanel" class="tab-pane active" id="tab-list">
-        <table class="table table-bordered table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Название</th>
-                    <th>Флаг</th>
-                    <th>Цвет</th>
-                    <th>Записывать в базу данных</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($eventtypes as $event): 
-                $color = str_pad(dechex($event['COLOR']), 6, '0', STR_PAD_LEFT);
-                ?>
-                <tr>
-                    <td><?php echo $event['ID_EVENTTYPE']; ?></td>
-                    <td><?php echo HTML::chars($event['NAME']); ?></td>
-                    <td><?php echo $event['FLAG']; ?></td>
-                    <td>
-                        <div class="color-box" style="display: inline-block; width: 20px; height: 20px; border: 1px solid #000; background-color: #<?php echo $color; ?>;" title="COLOR=<?php echo $event['COLOR']; ?> hex=#<?php echo $color; ?>"></div>
-                        #<?php echo $color; ?>
-                        <small class="text-muted">(<?php echo $event['COLOR']; ?>)</small>
-                    </td>
-                    <td class="<?php echo $event['ACTIVE'] ? 'text-success' : 'text-danger'; ?>">
-                        <?php echo $event['ACTIVE'] ? 'Да' : 'Нет'; ?>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-primary btn-xs edit-event-btn" 
-                                data-id="<?php echo $event['ID_EVENTTYPE']; ?>"
-                                data-name="<?php echo htmlspecialchars($event['NAME'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-flag="<?php echo $event['FLAG']; ?>"
-                                data-color="<?php echo $event['COLOR']; ?>"
-                                data-sound="<?php echo htmlspecialchars($event['SOUND'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-active="<?php echo $event['ACTIVE']; ?>"
-                                data-id_parent="<?php echo $event['ID_PARENT']; ?>">
-                            Редактировать
-                        </button>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        <p><small>Всего записей: <?php echo count($eventtypes); ?></small></p>
-    </div>
-
-    <!-- Закладка 2: Добавить событие -->
-    <div role="tabpanel" class="tab-pane" id="tab-add">
-        <?php if (!empty($validation_errors) && empty($old_input['ID_EVENTTYPE'])): ?>
-        <div class="alert alert-danger">
-            <strong>Ошибки валидации:</strong>
-            <ul>
-                <?php foreach ($validation_errors as $field => $error): ?>
-                <li><?php echo HTML::chars($error); ?></li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
-        <?php endif; ?>
-
-        <h2>Добавление нового типа события</h2>
-        <form action="<?php echo URL::site('eventConfig/create'); ?>" method="post" class="form-horizontal">
-            <div class="form-group">
-                <label for="name" class="col-sm-2 control-label">Название:</label>
-                <div class="col-sm-10">
-                    <input type="text" id="name" name="NAME" class="form-control" required
-                           value="<?php echo isset($old_input['NAME']) ? HTML::chars($old_input['NAME']) : ''; ?>">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="flag" class="col-sm-2 control-label">Флаг:</label>
-                <div class="col-sm-10">
-                    <input type="number" id="flag" name="FLAG" value="<?php echo isset($old_input['FLAG']) ? HTML::chars($old_input['FLAG']) : '0'; ?>" min="0" class="form-control">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="color" class="col-sm-2 control-label">Цвет (десятичный):</label>
-                <div class="col-sm-10">
-                    <div class="input-group">
-                        <input type="number" id="color" name="COLOR" value="<?php echo isset($old_input['COLOR']) ? HTML::chars($old_input['COLOR']) : '16777215'; ?>" min="0" max="16777215" class="form-control" oninput="updateColorPreview()">
-                        <span class="input-group-addon">
-                            <div id="colorPreview" class="color-preview" style="display: inline-block; width: 30px; height: 30px; border: 1px solid #000;"></div>
-                        </span>
-                    </div>
-                    <small class="help-block">Диапазон 0-16777215 (0xFFFFFF), по умолчанию белый</small>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="sound" class="col-sm-2 control-label">Звук (путь к файлу):</label>
-                <div class="col-sm-10">
-                    <input type="text" id="sound" name="SOUND" placeholder="например, sound/alert.mp3" class="form-control"
-                           value="<?php echo isset($old_input['SOUND']) ? HTML::chars($old_input['SOUND']) : ''; ?>">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="active" class="col-sm-2 control-label">Активен:</label>
-                <div class="col-sm-10">
-                    <select id="active" name="ACTIVE" class="form-control">
-                        <option value="1" <?php echo (isset($old_input['ACTIVE']) && $old_input['ACTIVE'] == '1') ? 'selected' : 'selected'; ?>>Да</option>
-                        <option value="0" <?php echo (isset($old_input['ACTIVE']) && $old_input['ACTIVE'] == '0') ? 'selected' : ''; ?>>Нет</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="id_parent" class="col-sm-2 control-label">Родительский тип:</label>
-                <div class="col-sm-10">
-                    <select id="id_parent" name="ID_PARENT" class="form-control">
-                        <option value="">-- Без родителя --</option>
-                        <?php foreach ($parents as $parent): ?>
-                        <option value="<?php echo $parent['ID_EVENTTYPE']; ?>"
-                            <?php echo (isset($old_input['ID_PARENT']) && $old_input['ID_PARENT'] == $parent['ID_EVENTTYPE']) ? 'selected' : ''; ?>>
-                            <?php echo HTML::chars($parent['NAME']); ?> (ID: <?php echo $parent['ID_EVENTTYPE']; ?>)
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                    <button type="submit" class="btn btn-primary">Создать</button>
-                    <button type="reset" class="btn btn-default">Очистить</button>
-                </div>
-            </div>
-        </form>
-        
-        <script>
-        function updateColorPreview() {
-            var colorVal = document.getElementById('color').value;
-            var hex = '#' + ('000000' + parseInt(colorVal || 16777215).toString(16)).slice(-6);
-            document.getElementById('colorPreview').style.backgroundColor = hex;
-        }
-        window.onload = updateColorPreview;
-        <?php if (!empty($validation_errors) && empty($old_input['ID_EVENTTYPE'])): ?>
-        $(document).ready(function() {
-            $('a[href="#tab-add"]').tab('show');
-        });
-        <?php endif; ?>
-        </script>
-    </div>
-
-    <!-- Закладка 3: История -->
-    <div role="tabpanel" class="tab-pane" id="tab-history">
-        <h2>История разработки модуля</h2>
-        <p>Модуль "Конфигурация событий" был разработан для системы Artonit City с целью управления типами событий СКУД.</p>
-        <p>Основные этапы разработки:</p>
-        <ul>
-            <li>Версия 1.0 (2023) — базовый функционал: CRUD для типов событий.</li>
-            <li>Версия 1.1 (2024) — добавлена валидация, улучшен интерфейс.</li>
-            <li>Версия 2.0 (2025) — интеграция с Bootstrap 3, добавлены цветовые предпросмотры.</li>
-        </ul>
-        <p>Текущая версия: 2.0 (Kohana 3.3, PHP 5.6, Bootstrap 3).</p>
-    </div>
-</div>
-
-<!-- Стили для простого модального окна -->
-<style>
-#customModalOverlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 10000;
-}
-
-#customModal {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 500px;
-    max-width: 90%;
-    background: #fff;
-    border-radius: 5px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-    z-index: 10001;
-    font-family: Arial, sans-serif;
-}
-
-.custom-modal-header {
-    padding: 15px;
-    border-bottom: 1px solid #ddd;
-    background: #f5f5f5;
-    border-radius: 5px 5px 0 0;
-    overflow: hidden;
-}
-
-.custom-modal-header h4 {
-    margin: 0;
-    float: left;
-    font-size: 18px;
-}
-
-.custom-modal-header .close {
-    float: right;
-    font-size: 24px;
-    font-weight: bold;
-    line-height: 1;
-    color: #000;
-    opacity: 0.5;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-}
-
-.custom-modal-header .close:hover {
-    opacity: 0.8;
-}
-
-.custom-modal-body {
-    padding: 20px;
-    max-height: 70vh;
-    overflow-y: auto;
-}
-
-.custom-modal-footer {
-    padding: 15px;
-    border-top: 1px solid #ddd;
-    text-align: right;
-    background: #f5f5f5;
-    border-radius: 0 0 5px 5px;
-}
-
-.custom-modal-footer button {
-    padding: 6px 12px;
-    margin-left: 10px;
-    font-size: 14px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.custom-modal-footer .btn-cancel {
-    color: #333;
-    background: #fff;
-    border: 1px solid #ccc;
-}
-
-.custom-modal-footer .btn-save {
-    color: #fff;
-    background: #337ab7;
-    border: 1px solid #2e6da4;
-}
-
-.custom-modal-body .form-group {
-    margin-bottom: 15px;
-}
-
-.custom-modal-body label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.custom-modal-body input,
-.custom-modal-body select {
-    width: 100%;
-    padding: 6px 12px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-.custom-modal-body input[readonly] {
-    background-color: #f5f5f5;
-    cursor: not-allowed;
-}
-
-.custom-modal-body .input-group {
-    display: flex;
-}
-
-.custom-modal-body .input-group input {
-    flex: 1;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
-.custom-modal-body .input-group-addon {
-    padding: 6px 12px;
-    background: #eee;
-    border: 1px solid #ccc;
-    border-left: none;
-    border-radius: 0 4px 4px 0;
-}
-
-.custom-modal-body .help-block {
-    font-size: 12px;
-    color: #737373;
-    margin-top: 5px;
-}
-
-.custom-modal-body .alert {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-}
-
-.custom-modal-body .alert-danger {
-    color: #a94442;
-    background: #f2dede;
-    border: 1px solid #ebccd1;
-}
-</style>
-
-<div id="customModalOverlay"></div>
-<div id="customModal">
-    <div class="custom-modal-header">
-        <button type="button" class="close" id="modalCloseBtn">&times;</button>
-        <h4>Редактирование типа события</h4>
-    </div>
-    <form action="<?php echo URL::site('eventConfig/save'); ?>" method="post" id="customEditForm">
-        <div class="custom-modal-body">
-            <input type="hidden" name="ID_EVENTTYPE" id="custom_edit_id">
-            
-            <div class="form-group">
-                <label for="custom_edit_id_display">Номер события (ID):</label>
-                <input type="text" id="custom_edit_id_display" class="form-control" readonly>
-            </div>
-            
-            <div class="form-group">
-                <label for="custom_edit_name">Название:</label>
-                <input type="text" id="custom_edit_name" name="NAME" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="custom_edit_flag">Флаг:</label>
-                <input type="number" id="custom_edit_flag" name="FLAG" min="0" value="0">
-            </div>
-            
-            <div class="form-group">
-                <label for="custom_edit_color">Цвет (десятичный):</label>
-                <div class="input-group">
-                    <input type="number" id="custom_edit_color" name="COLOR" min="0" max="16777215" value="16777215" oninput="updateCustomColorPreview()">
-                    <span class="input-group-addon">
-                        <div id="customColorPreview" style="width: 30px; height: 30px; border: 1px solid #000;"></div>
-                    </span>
-                </div>
-                <small class="help-block">Диапазон 0-16777215 (0xFFFFFF)</small>
-            </div>
-            
-            <div class="form-group">
-                <label for="custom_edit_sound">Звук (путь к файлу):</label>
-                <input type="text" id="custom_edit_sound" name="SOUND" placeholder="например, sound/alert.mp3">
-            </div>
-            
-            <div class="form-group">
-                <label for="custom_edit_active">Активен:</label>
-                <select id="custom_edit_active" name="ACTIVE">
-                    <option value="1">Да</option>
-                    <option value="0">Нет</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="custom_edit_id_parent">Родительский тип:</label>
-                <select id="custom_edit_id_parent" name="ID_PARENT">
-                    <option value="">-- Без родителя --</option>
-                    <?php foreach ($parents as $parent): ?>
-                    <option value="<?php echo $parent['ID_EVENTTYPE']; ?>">
-                        <?php echo HTML::chars($parent['NAME']); ?> (ID: <?php echo $parent['ID_EVENTTYPE']; ?>)
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            
-            <?php if (!empty($validation_errors) && isset($old_input['ID_EVENTTYPE'])): ?>
-            <div class="alert alert-danger">
-                <strong>Ошибки валидации:</strong>
-                <ul>
-                    <?php foreach ($validation_errors as $field => $error): ?>
-                    <li><?php echo HTML::chars($error); ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-            <?php endif; ?>
-        </div>
-        <div class="custom-modal-footer">
-            <button type="button" class="btn-cancel" id="modalCancelBtn">Отмена</button>
-            <button type="submit" class="btn-save">Сохранить изменения</button>
-        </div>
-    </form>
+<div class="content-wrapper">
+    <?php
+    // Подключаем соответствующий файл
+    switch($tab) {
+        case 'tab1':
+            include 'tab1.php';
+            break;
+        case 'tab2':
+            include 'add.php';
+            break;
+        default:
+            include 'tab1.php';
+    }
+    ?>
 </div>
 
 <script>
-function updateCustomColorPreview() {
-    var colorVal = document.getElementById('custom_edit_color').value;
-    var hex = '#' + ('000000' + parseInt(colorVal || 16777215).toString(16)).slice(-6);
-    document.getElementById('customColorPreview').style.backgroundColor = hex;
-}
-
-function openCustomModal() {
-    document.getElementById('customModalOverlay').style.display = 'block';
-    document.getElementById('customModal').style.display = 'block';
-}
-
-function closeCustomModal() {
-    document.getElementById('customModalOverlay').style.display = 'none';
-    document.getElementById('customModal').style.display = 'none';
-}
-
+// Сохраняем активную закладку в localStorage
 $(document).ready(function() {
-    $('.edit-event-btn').on('click', function(e) {
-        e.preventDefault();
-        var btn = $(this);
-        var id = btn.data('id');
-        
-        // ID для отправки формы (скрытое поле)
-        $('#custom_edit_id').val(id);
-        // ID для отображения (readonly поле)
-        $('#custom_edit_id_display').val(id);
-        
-        $('#custom_edit_name').val(btn.data('name'));
-        $('#custom_edit_flag').val(btn.data('flag'));
-        $('#custom_edit_color').val(btn.data('color'));
-        $('#custom_edit_sound').val(btn.data('sound'));
-        $('#custom_edit_active').val(btn.data('active'));
-        $('#custom_edit_id_parent').val(btn.data('id_parent') ? btn.data('id_parent') : '');
-        
-        updateCustomColorPreview();
-        openCustomModal();
+    $('.nav-tabs a').on('click', function(e) {
+        var activeTab = $(this).attr('href').split('=')[1];
+        localStorage.setItem('activeEventConfigTab', activeTab);
     });
     
-    $('#modalCloseBtn, #modalCancelBtn, #customModalOverlay').on('click', closeCustomModal);
-    
-    $(document).on('keydown', function(e) {
-        if (e.keyCode === 27) closeCustomModal();
-    });
-    
-    <?php if (!empty($validation_errors) && isset($old_input['ID_EVENTTYPE'])): ?>
-    var id = '<?php echo isset($old_input['ID_EVENTTYPE']) ? $old_input['ID_EVENTTYPE'] : ''; ?>';
-    $('#custom_edit_id').val(id);
-    $('#custom_edit_id_display').val(id);
-    $('#custom_edit_name').val('<?php echo isset($old_input['NAME']) ? addslashes($old_input['NAME']) : ''; ?>');
-    $('#custom_edit_flag').val('<?php echo isset($old_input['FLAG']) ? $old_input['FLAG'] : ''; ?>');
-    $('#custom_edit_color').val('<?php echo isset($old_input['COLOR']) ? $old_input['COLOR'] : ''; ?>');
-    $('#custom_edit_sound').val('<?php echo isset($old_input['SOUND']) ? addslashes($old_input['SOUND']) : ''; ?>');
-    $('#custom_edit_active').val('<?php echo isset($old_input['ACTIVE']) ? $old_input['ACTIVE'] : ''; ?>');
-    $('#custom_edit_id_parent').val('<?php echo isset($old_input['ID_PARENT']) ? $old_input['ID_PARENT'] : ''; ?>');
-    updateCustomColorPreview();
-    openCustomModal();
-    <?php endif; ?>
+    // Восстанавливаем последнюю активную закладку
+    var savedTab = localStorage.getItem('activeEventConfigTab');
+    if (savedTab && savedTab !== '<?php echo $tab; ?>') {
+        window.location.href = '?tab=' + savedTab;
+    }
 });
 </script>
