@@ -11,7 +11,6 @@
 
 <h1>Типы событий</h1>
 
-
 <!-- Содержимое табов -->
 <div class="tab-content" style="padding-top: 20px;">
     <!-- Закладка 1: Текущий список -->
@@ -93,15 +92,22 @@
             </div>
             
             <div class="form-group">
-                <label for="color" class="col-sm-2 control-label">Цвет (десятичный):</label>
+                <label for="color" class="col-sm-2 control-label">Цвет:</label>
                 <div class="col-sm-10">
-                    <div class="input-group">
-                        <input type="number" id="color" name="COLOR" value="<?php echo isset($old_input['COLOR']) ? HTML::chars($old_input['COLOR']) : '16777215'; ?>" min="0" max="16777215" class="form-control" oninput="updateColorPreview()">
-                        <span class="input-group-addon">
-                            <div id="colorPreview" class="color-preview" style="display: inline-block; width: 30px; height: 30px; border: 1px solid #000;"></div>
-                        </span>
+                    <div class="row">
+                        <div class="col-xs-7 col-sm-8">
+                            <input type="number" id="color" name="COLOR" value="<?php echo isset($old_input['COLOR']) ? HTML::chars($old_input['COLOR']) : '16777215'; ?>" min="0" max="16777215" class="form-control" oninput="updateColorPreview()" placeholder="Десятичный код">
+                        </div>
+                        <div class="col-xs-5 col-sm-4">
+                            <div class="input-group">
+                                <input type="text" id="colorHex" class="form-control" placeholder="#FFFFFF" oninput="updateColorFromHex()" maxlength="7">
+                                <span class="input-group-addon" style="padding: 0;">
+                                    <div id="colorPreview" style="width: 34px; height: 34px; border: 1px solid #ccc; cursor: pointer;" title="Выбрать цвет"></div>
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <small class="help-block">Диапазон 0-16777215 (0xFFFFFF), по умолчанию белый</small>
+                    <small class="help-block">Введите десятичный код (0-16777215) или HEX (#000000 - #FFFFFF), или кликните на цветной квадратик для выбора цвета</small>
                 </div>
             </div>
             
@@ -147,12 +153,71 @@
         </form>
         
         <script>
+        function decToHex(dec) {
+            return '#' + ('000000' + parseInt(dec).toString(16)).slice(-6).toUpperCase();
+        }
+        
+        function hexToDec(hex) {
+            return parseInt(hex.substring(1), 16);
+        }
+        
         function updateColorPreview() {
             var colorVal = document.getElementById('color').value;
-            var hex = '#' + ('000000' + parseInt(colorVal || 16777215).toString(16)).slice(-6);
+            if (colorVal === '' || isNaN(colorVal)) colorVal = 16777215;
+            var hex = decToHex(colorVal);
+            document.getElementById('colorPreview').style.backgroundColor = hex;
+            document.getElementById('colorHex').value = hex;
+        }
+        
+        function updateColorFromHex() {
+            var hex = document.getElementById('colorHex').value;
+            if (!hex.match(/^#[0-9A-Fa-f]{6}$/)) {
+                // Если HEX некорректный, пробуем добавить #
+                if (hex.match(/^[0-9A-Fa-f]{6}$/)) {
+                    hex = '#' + hex;
+                } else {
+                    return;
+                }
+            }
+            var dec = hexToDec(hex);
+            document.getElementById('color').value = dec;
             document.getElementById('colorPreview').style.backgroundColor = hex;
         }
-        window.onload = updateColorPreview;
+        
+        // Стандартный color picker через скрытый input
+        var hiddenColorPicker = null;
+        
+        function openColorPicker() {
+            if (!hiddenColorPicker) {
+                hiddenColorPicker = document.createElement('input');
+                hiddenColorPicker.type = 'color';
+                hiddenColorPicker.style.position = 'absolute';
+                hiddenColorPicker.style.visibility = 'hidden';
+                document.body.appendChild(hiddenColorPicker);
+                
+                hiddenColorPicker.addEventListener('change', function() {
+                    var hex = hiddenColorPicker.value;
+                    var dec = hexToDec(hex);
+                    document.getElementById('color').value = dec;
+                    document.getElementById('colorHex').value = hex.toUpperCase();
+                    document.getElementById('colorPreview').style.backgroundColor = hex;
+                });
+            }
+            var currentHex = document.getElementById('colorHex').value;
+            if (currentHex.match(/^#[0-9A-Fa-f]{6}$/)) {
+                hiddenColorPicker.value = currentHex;
+            } else {
+                hiddenColorPicker.value = '#ffffff';
+            }
+            hiddenColorPicker.click();
+        }
+        
+        document.getElementById('colorPreview').addEventListener('click', openColorPicker);
+        
+        window.onload = function() {
+            updateColorPreview();
+        };
+        
         <?php if (!empty($validation_errors) && empty($old_input['ID_EVENTTYPE'])): ?>
         $(document).ready(function() {
             $('a[href="#tab-add"]').tab('show');
@@ -293,22 +358,37 @@
     cursor: not-allowed;
 }
 
+.custom-modal-body .row {
+    margin: 0 -5px;
+}
+
+.custom-modal-body .col-xs-7,
+.custom-modal-body .col-xs-5 {
+    padding: 0 5px;
+    float: left;
+}
+
+.custom-modal-body .col-xs-7 {
+    width: 58.33333333%;
+}
+
+.custom-modal-body .col-xs-5 {
+    width: 41.66666667%;
+}
+
 .custom-modal-body .input-group {
     display: flex;
 }
 
 .custom-modal-body .input-group input {
     flex: 1;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
 }
 
 .custom-modal-body .input-group-addon {
-    padding: 6px 12px;
+    padding: 0;
     background: #eee;
     border: 1px solid #ccc;
     border-left: none;
-    border-radius: 0 4px 4px 0;
 }
 
 .custom-modal-body .help-block {
@@ -356,14 +436,21 @@
             </div>
             
             <div class="form-group">
-                <label for="custom_edit_color">Цвет (десятичный):</label>
-                <div class="input-group">
-                    <input type="number" id="custom_edit_color" name="COLOR" min="0" max="16777215" value="16777215" oninput="updateCustomColorPreview()">
-                    <span class="input-group-addon">
-                        <div id="customColorPreview" style="width: 30px; height: 30px; border: 1px solid #000;"></div>
-                    </span>
+                <label>Цвет:</label>
+                <div class="row">
+                    <div class="col-xs-7">
+                        <input type="number" id="custom_edit_color" name="COLOR" min="0" max="16777215" class="form-control" oninput="updateCustomColorPreview()" placeholder="Десятичный код">
+                    </div>
+                    <div class="col-xs-5">
+                        <div class="input-group">
+                            <input type="text" id="custom_edit_hex" class="form-control" placeholder="#FFFFFF" oninput="updateCustomColorFromHex()" maxlength="7">
+                            <span class="input-group-addon" style="padding: 0;">
+                                <div id="customColorPreview" style="width: 34px; height: 34px; border: 1px solid #ccc; cursor: pointer;" title="Выбрать цвет"></div>
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <small class="help-block">Диапазон 0-16777215 (0xFFFFFF)</small>
+                <small class="help-block">Введите десятичный код или HEX, или кликните на цветной квадратик</small>
             </div>
             
             <div class="form-group">
@@ -410,10 +497,62 @@
 </div>
 
 <script>
+function decToHexModal(dec) {
+    return '#' + ('000000' + parseInt(dec).toString(16)).slice(-6).toUpperCase();
+}
+
+function hexToDecModal(hex) {
+    return parseInt(hex.substring(1), 16);
+}
+
 function updateCustomColorPreview() {
     var colorVal = document.getElementById('custom_edit_color').value;
-    var hex = '#' + ('000000' + parseInt(colorVal || 16777215).toString(16)).slice(-6);
+    if (colorVal === '' || isNaN(colorVal)) colorVal = 16777215;
+    var hex = decToHexModal(colorVal);
     document.getElementById('customColorPreview').style.backgroundColor = hex;
+    document.getElementById('custom_edit_hex').value = hex;
+}
+
+function updateCustomColorFromHex() {
+    var hex = document.getElementById('custom_edit_hex').value;
+    if (!hex.match(/^#[0-9A-Fa-f]{6}$/)) {
+        if (hex.match(/^[0-9A-Fa-f]{6}$/)) {
+            hex = '#' + hex;
+        } else {
+            return;
+        }
+    }
+    var dec = hexToDecModal(hex);
+    document.getElementById('custom_edit_color').value = dec;
+    document.getElementById('customColorPreview').style.backgroundColor = hex;
+}
+
+// Color picker для модального окна
+var modalColorPicker = null;
+
+function openModalColorPicker() {
+    if (!modalColorPicker) {
+        modalColorPicker = document.createElement('input');
+        modalColorPicker.type = 'color';
+        modalColorPicker.style.position = 'absolute';
+        modalColorPicker.style.visibility = 'hidden';
+        document.body.appendChild(modalColorPicker);
+        
+        modalColorPicker.addEventListener('change', function() {
+            var hex = modalColorPicker.value;
+            var dec = hexToDecModal(hex);
+            document.getElementById('custom_edit_color').value = dec;
+            document.getElementById('custom_edit_hex').value = hex.toUpperCase();
+            document.getElementById('customColorPreview').style.backgroundColor = hex;
+        });
+    }
+    var currentHex = document.getElementById('custom_edit_hex').value;
+    if (currentHex.match(/^#[0-9A-Fa-f]{6}$/)) {
+        modalColorPicker.value = currentHex;
+    } else {
+        modalColorPicker.value = '#ffffff';
+    }
+    modalColorPicker.click();
 }
 
 function openCustomModal() {
@@ -427,24 +566,28 @@ function closeCustomModal() {
 }
 
 $(document).ready(function() {
+    // Навешиваем обработчик на цветной квадратик
+    document.getElementById('customColorPreview').addEventListener('click', openModalColorPicker);
+    
     $('.edit-event-btn').on('click', function(e) {
         e.preventDefault();
         var btn = $(this);
         var id = btn.data('id');
+        var color = btn.data('color');
+        var hex = decToHexModal(color);
         
-        // ID для отправки формы (скрытое поле)
         $('#custom_edit_id').val(id);
-        // ID для отображения (readonly поле)
         $('#custom_edit_id_display').val(id);
-        
         $('#custom_edit_name').val(btn.data('name'));
         $('#custom_edit_flag').val(btn.data('flag'));
-        $('#custom_edit_color').val(btn.data('color'));
+        $('#custom_edit_color').val(color);
+        $('#custom_edit_hex').val(hex);
         $('#custom_edit_sound').val(btn.data('sound'));
         $('#custom_edit_active').val(btn.data('active'));
         $('#custom_edit_id_parent').val(btn.data('id_parent') ? btn.data('id_parent') : '');
         
-        updateCustomColorPreview();
+        $('#customColorPreview').css('backgroundColor', hex);
+        
         openCustomModal();
     });
     
@@ -456,15 +599,21 @@ $(document).ready(function() {
     
     <?php if (!empty($validation_errors) && isset($old_input['ID_EVENTTYPE'])): ?>
     var id = '<?php echo isset($old_input['ID_EVENTTYPE']) ? $old_input['ID_EVENTTYPE'] : ''; ?>';
+    var color = '<?php echo isset($old_input['COLOR']) ? $old_input['COLOR'] : '16777215'; ?>';
+    var hex = decToHexModal(color);
+    
     $('#custom_edit_id').val(id);
     $('#custom_edit_id_display').val(id);
     $('#custom_edit_name').val('<?php echo isset($old_input['NAME']) ? addslashes($old_input['NAME']) : ''; ?>');
     $('#custom_edit_flag').val('<?php echo isset($old_input['FLAG']) ? $old_input['FLAG'] : ''; ?>');
-    $('#custom_edit_color').val('<?php echo isset($old_input['COLOR']) ? $old_input['COLOR'] : ''; ?>');
+    $('#custom_edit_color').val(color);
+    $('#custom_edit_hex').val(hex);
     $('#custom_edit_sound').val('<?php echo isset($old_input['SOUND']) ? addslashes($old_input['SOUND']) : ''; ?>');
     $('#custom_edit_active').val('<?php echo isset($old_input['ACTIVE']) ? $old_input['ACTIVE'] : ''; ?>');
     $('#custom_edit_id_parent').val('<?php echo isset($old_input['ID_PARENT']) ? $old_input['ID_PARENT'] : ''; ?>');
-    updateCustomColorPreview();
+    
+    $('#customColorPreview').css('backgroundColor', hex);
+    
     openCustomModal();
     <?php endif; ?>
 });
