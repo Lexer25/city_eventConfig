@@ -26,7 +26,7 @@ $tab = isset($_GET['tab']) ? $_GET['tab'] : 'tab1';
     // Подключаем соответствующий файл
     switch($tab) {
         case 'tab1':
-            include 'tab1.php';
+            include 'eventList.php';
             break;
         case 'tab2':
             include 'add.php';
