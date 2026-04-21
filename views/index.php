@@ -187,56 +187,54 @@
     </div>
 </div>
 
-<!-- Простое модальное окно (своими руками, без Bootstrap JS) -->
+<!-- Стили для простого модального окна -->
 <style>
-/* Стили для модального окна */
-#simpleModalOverlay {
+#customModalOverlay {
     display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 9998;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 10000;
 }
 
-#simpleModal {
+#customModal {
     display: none;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 600px;
+    width: 500px;
+    max-width: 90%;
     background: #fff;
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    z-index: 9999;
-    max-height: 90vh;
-    overflow-y: auto;
+    border-radius: 5px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    z-index: 10001;
+    font-family: Arial, sans-serif;
 }
 
-.simple-modal-header {
+.custom-modal-header {
     padding: 15px;
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid #ddd;
     background: #f5f5f5;
-    border-radius: 4px 4px 0 0;
+    border-radius: 5px 5px 0 0;
     overflow: hidden;
 }
 
-.simple-modal-header h4 {
+.custom-modal-header h4 {
     margin: 0;
     float: left;
+    font-size: 18px;
 }
 
-.simple-modal-header .close {
+.custom-modal-header .close {
     float: right;
-    font-size: 21px;
+    font-size: 24px;
     font-weight: bold;
     line-height: 1;
     color: #000;
-    text-shadow: 0 1px 0 #fff;
     opacity: 0.5;
     background: none;
     border: none;
@@ -244,167 +242,158 @@
     padding: 0;
 }
 
-.simple-modal-header .close:hover {
+.custom-modal-header .close:hover {
     opacity: 0.8;
 }
 
-.simple-modal-body {
-    padding: 15px;
+.custom-modal-body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
 }
 
-.simple-modal-footer {
+.custom-modal-footer {
     padding: 15px;
-    border-top: 1px solid #e5e5e5;
+    border-top: 1px solid #ddd;
     text-align: right;
     background: #f5f5f5;
-    border-radius: 0 0 4px 4px;
+    border-radius: 0 0 5px 5px;
 }
 
-.simple-modal-footer .btn {
-    display: inline-block;
+.custom-modal-footer button {
     padding: 6px 12px;
-    margin-bottom: 0;
+    margin-left: 10px;
     font-size: 14px;
-    font-weight: normal;
-    line-height: 1.42857143;
-    text-align: center;
-    cursor: pointer;
-    border: 1px solid transparent;
     border-radius: 4px;
+    cursor: pointer;
 }
 
-.simple-modal-footer .btn-default {
+.custom-modal-footer .btn-cancel {
     color: #333;
     background: #fff;
-    border-color: #ccc;
+    border: 1px solid #ccc;
 }
 
-.simple-modal-footer .btn-primary {
+.custom-modal-footer .btn-save {
     color: #fff;
     background: #337ab7;
-    border-color: #2e6da4;
+    border: 1px solid #2e6da4;
 }
 
-.simple-modal-body .form-group {
+.custom-modal-body .form-group {
     margin-bottom: 15px;
 }
 
-.simple-modal-body .form-group label {
-    display: inline-block;
-    max-width: 100%;
+.custom-modal-body label {
+    display: block;
     margin-bottom: 5px;
     font-weight: bold;
 }
 
-.simple-modal-body .form-control {
-    display: block;
+.custom-modal-body input,
+.custom-modal-body select {
     width: 100%;
-    height: 34px;
     padding: 6px 12px;
     font-size: 14px;
-    line-height: 1.42857143;
-    color: #555;
-    background: #fff;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
 }
 
-.simple-modal-body select.form-control {
-    height: 34px;
+.custom-modal-body input[readonly] {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
 }
 
-.simple-modal-body .input-group {
-    display: table;
-    border-collapse: separate;
+.custom-modal-body .input-group {
+    display: flex;
 }
 
-.simple-modal-body .input-group-addon {
-    display: table-cell;
-    width: 1%;
-    white-space: nowrap;
-    vertical-align: middle;
-    padding: 6px 12px;
-    font-size: 14px;
-    background: #eee;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.simple-modal-body .input-group .form-control {
-    display: table-cell;
+.custom-modal-body .input-group input {
+    flex: 1;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
 }
 
-.simple-modal-body .help-block {
-    display: block;
-    margin-top: 5px;
-    color: #737373;
-    font-size: 12px;
+.custom-modal-body .input-group-addon {
+    padding: 6px 12px;
+    background: #eee;
+    border: 1px solid #ccc;
+    border-left: none;
+    border-radius: 0 4px 4px 0;
 }
 
-.simple-modal-body .alert {
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 1px solid transparent;
+.custom-modal-body .help-block {
+    font-size: 12px;
+    color: #737373;
+    margin-top: 5px;
+}
+
+.custom-modal-body .alert {
+    padding: 10px;
+    margin-bottom: 15px;
     border-radius: 4px;
 }
 
-.simple-modal-body .alert-danger {
+.custom-modal-body .alert-danger {
     color: #a94442;
     background: #f2dede;
-    border-color: #ebccd1;
+    border: 1px solid #ebccd1;
 }
 </style>
 
-<div id="simpleModalOverlay"></div>
-<div id="simpleModal">
-    <div class="simple-modal-header">
-        <button type="button" class="close" id="simpleModalClose">&times;</button>
+<div id="customModalOverlay"></div>
+<div id="customModal">
+    <div class="custom-modal-header">
+        <button type="button" class="close" id="modalCloseBtn">&times;</button>
         <h4>Редактирование типа события</h4>
     </div>
-    <form action="<?php echo URL::site('eventConfig/save'); ?>" method="post" id="simpleEditForm">
-        <div class="simple-modal-body">
-            <input type="hidden" name="ID_EVENTTYPE" id="simple_edit_id">
+    <form action="<?php echo URL::site('eventConfig/save'); ?>" method="post" id="customEditForm">
+        <div class="custom-modal-body">
+            <input type="hidden" name="ID_EVENTTYPE" id="custom_edit_id">
             
             <div class="form-group">
-                <label for="simple_edit_name">Название:</label>
-                <input type="text" id="simple_edit_name" name="NAME" class="form-control" required>
+                <label for="custom_edit_id_display">Номер события (ID):</label>
+                <input type="text" id="custom_edit_id_display" class="form-control" readonly>
             </div>
             
             <div class="form-group">
-                <label for="simple_edit_flag">Флаг:</label>
-                <input type="number" id="simple_edit_flag" name="FLAG" min="0" class="form-control">
+                <label for="custom_edit_name">Название:</label>
+                <input type="text" id="custom_edit_name" name="NAME" required>
             </div>
             
             <div class="form-group">
-                <label for="simple_edit_color">Цвет (десятичный):</label>
+                <label for="custom_edit_flag">Флаг:</label>
+                <input type="number" id="custom_edit_flag" name="FLAG" min="0" value="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="custom_edit_color">Цвет (десятичный):</label>
                 <div class="input-group">
-                    <input type="number" id="simple_edit_color" name="COLOR" min="0" max="16777215" class="form-control" oninput="updateSimpleModalColorPreview()">
+                    <input type="number" id="custom_edit_color" name="COLOR" min="0" max="16777215" value="16777215" oninput="updateCustomColorPreview()">
                     <span class="input-group-addon">
-                        <div id="simpleModalColorPreview" style="display: inline-block; width: 30px; height: 30px; border: 1px solid #000;"></div>
+                        <div id="customColorPreview" style="width: 30px; height: 30px; border: 1px solid #000;"></div>
                     </span>
                 </div>
                 <small class="help-block">Диапазон 0-16777215 (0xFFFFFF)</small>
             </div>
             
             <div class="form-group">
-                <label for="simple_edit_sound">Звук (путь к файлу):</label>
-                <input type="text" id="simple_edit_sound" name="SOUND" placeholder="например, sound/alert.mp3" class="form-control">
+                <label for="custom_edit_sound">Звук (путь к файлу):</label>
+                <input type="text" id="custom_edit_sound" name="SOUND" placeholder="например, sound/alert.mp3">
             </div>
             
             <div class="form-group">
-                <label for="simple_edit_active">Активен:</label>
-                <select id="simple_edit_active" name="ACTIVE" class="form-control">
+                <label for="custom_edit_active">Активен:</label>
+                <select id="custom_edit_active" name="ACTIVE">
                     <option value="1">Да</option>
                     <option value="0">Нет</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="simple_edit_id_parent">Родительский тип:</label>
-                <select id="simple_edit_id_parent" name="ID_PARENT" class="form-control">
+                <label for="custom_edit_id_parent">Родительский тип:</label>
+                <select id="custom_edit_id_parent" name="ID_PARENT">
                     <option value="">-- Без родителя --</option>
                     <?php foreach ($parents as $parent): ?>
                     <option value="<?php echo $parent['ID_EVENTTYPE']; ?>">
@@ -425,78 +414,70 @@
             </div>
             <?php endif; ?>
         </div>
-        <div class="simple-modal-footer">
-            <button type="button" class="btn btn-default" id="simpleModalCancel">Отмена</button>
-            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        <div class="custom-modal-footer">
+            <button type="button" class="btn-cancel" id="modalCancelBtn">Отмена</button>
+            <button type="submit" class="btn-save">Сохранить изменения</button>
         </div>
     </form>
 </div>
 
 <script>
-// Функция обновления предпросмотра цвета
-function updateSimpleModalColorPreview() {
-    var colorVal = document.getElementById('simple_edit_color').value;
+function updateCustomColorPreview() {
+    var colorVal = document.getElementById('custom_edit_color').value;
     var hex = '#' + ('000000' + parseInt(colorVal || 16777215).toString(16)).slice(-6);
-    document.getElementById('simpleModalColorPreview').style.backgroundColor = hex;
+    document.getElementById('customColorPreview').style.backgroundColor = hex;
 }
 
-// Функции открытия/закрытия модального окна
-function openSimpleModal() {
-    document.getElementById('simpleModalOverlay').style.display = 'block';
-    document.getElementById('simpleModal').style.display = 'block';
+function openCustomModal() {
+    document.getElementById('customModalOverlay').style.display = 'block';
+    document.getElementById('customModal').style.display = 'block';
 }
 
-function closeSimpleModal() {
-    document.getElementById('simpleModalOverlay').style.display = 'none';
-    document.getElementById('simpleModal').style.display = 'none';
+function closeCustomModal() {
+    document.getElementById('customModalOverlay').style.display = 'none';
+    document.getElementById('customModal').style.display = 'none';
 }
 
-// Обработчики событий
 $(document).ready(function() {
-    // Кнопки редактирования
     $('.edit-event-btn').on('click', function(e) {
         e.preventDefault();
-        
         var btn = $(this);
-        $('#simple_edit_id').val(btn.data('id'));
-        $('#simple_edit_name').val(btn.data('name'));
-        $('#simple_edit_flag').val(btn.data('flag'));
-        $('#simple_edit_color').val(btn.data('color'));
-        $('#simple_edit_sound').val(btn.data('sound'));
-        $('#simple_edit_active').val(btn.data('active'));
-        $('#simple_edit_id_parent').val(btn.data('id_parent') ? btn.data('id_parent') : '');
+        var id = btn.data('id');
         
-        updateSimpleModalColorPreview();
-        openSimpleModal();
+        // ID для отправки формы (скрытое поле)
+        $('#custom_edit_id').val(id);
+        // ID для отображения (readonly поле)
+        $('#custom_edit_id_display').val(id);
+        
+        $('#custom_edit_name').val(btn.data('name'));
+        $('#custom_edit_flag').val(btn.data('flag'));
+        $('#custom_edit_color').val(btn.data('color'));
+        $('#custom_edit_sound').val(btn.data('sound'));
+        $('#custom_edit_active').val(btn.data('active'));
+        $('#custom_edit_id_parent').val(btn.data('id_parent') ? btn.data('id_parent') : '');
+        
+        updateCustomColorPreview();
+        openCustomModal();
     });
     
-    // Закрытие по крестику
-    $('#simpleModalClose').on('click', closeSimpleModal);
+    $('#modalCloseBtn, #modalCancelBtn, #customModalOverlay').on('click', closeCustomModal);
     
-    // Закрытие по кнопке Отмена
-    $('#simpleModalCancel').on('click', closeSimpleModal);
-    
-    // Закрытие по клику на overlay
-    $('#simpleModalOverlay').on('click', closeSimpleModal);
-    
-    // Закрытие по ESC
     $(document).on('keydown', function(e) {
-        if (e.keyCode === 27) {
-            closeSimpleModal();
-        }
+        if (e.keyCode === 27) closeCustomModal();
     });
     
     <?php if (!empty($validation_errors) && isset($old_input['ID_EVENTTYPE'])): ?>
-    // Если есть ошибки валидации, открываем модальное окно
-    $('#simple_edit_id').val('<?php echo isset($old_input['ID_EVENTTYPE']) ? $old_input['ID_EVENTTYPE'] : ''; ?>');
-    $('#simple_edit_name').val('<?php echo isset($old_input['NAME']) ? addslashes($old_input['NAME']) : ''; ?>');
-    $('#simple_edit_flag').val('<?php echo isset($old_input['FLAG']) ? $old_input['FLAG'] : ''; ?>');
-    $('#simple_edit_color').val('<?php echo isset($old_input['COLOR']) ? $old_input['COLOR'] : ''; ?>');
-    $('#simple_edit_sound').val('<?php echo isset($old_input['SOUND']) ? addslashes($old_input['SOUND']) : ''; ?>');
-    $('#simple_edit_active').val('<?php echo isset($old_input['ACTIVE']) ? $old_input['ACTIVE'] : ''; ?>');
-    $('#simple_edit_id_parent').val('<?php echo isset($old_input['ID_PARENT']) ? $old_input['ID_PARENT'] : ''; ?>');
-    updateSimpleModalColorPreview();
-    openSimpleModal();
+    var id = '<?php echo isset($old_input['ID_EVENTTYPE']) ? $old_input['ID_EVENTTYPE'] : ''; ?>';
+    $('#custom_edit_id').val(id);
+    $('#custom_edit_id_display').val(id);
+    $('#custom_edit_name').val('<?php echo isset($old_input['NAME']) ? addslashes($old_input['NAME']) : ''; ?>');
+    $('#custom_edit_flag').val('<?php echo isset($old_input['FLAG']) ? $old_input['FLAG'] : ''; ?>');
+    $('#custom_edit_color').val('<?php echo isset($old_input['COLOR']) ? $old_input['COLOR'] : ''; ?>');
+    $('#custom_edit_sound').val('<?php echo isset($old_input['SOUND']) ? addslashes($old_input['SOUND']) : ''; ?>');
+    $('#custom_edit_active').val('<?php echo isset($old_input['ACTIVE']) ? $old_input['ACTIVE'] : ''; ?>');
+    $('#custom_edit_id_parent').val('<?php echo isset($old_input['ID_PARENT']) ? $old_input['ID_PARENT'] : ''; ?>');
+    updateCustomColorPreview();
+    openCustomModal();
     <?php endif; ?>
 });
 </script>
